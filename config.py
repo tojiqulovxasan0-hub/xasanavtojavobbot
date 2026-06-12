@@ -11,10 +11,11 @@ def _req(key: str) -> str:
 
 API_ID        = int(_req("API_ID"))
 API_HASH      = _req("API_HASH")
-PHONE         = _req("PHONE")
+PHONE         = os.getenv("PHONE", "")          # Railway da shart emas
 ADMIN_ID      = int(_req("ADMIN_ID"))
 BOT_TOKEN     = _req("BOT_TOKEN")
 SESSION_NAME  = "userbot_session"
+SESSION_STRING = os.getenv("SESSION_STRING", "") # Railway uchun base64 session
 
 DM_DELAY        = 15
 BROADCAST_DELAY = 3
