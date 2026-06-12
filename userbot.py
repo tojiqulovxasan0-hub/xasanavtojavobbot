@@ -3,14 +3,38 @@
 # =============================================================
 import logging
 import asyncio
+import base64
+import os
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 
 import config
 import storage
 
 log = logging.getLogger(__name__)
-client = TelegramClient(config.SESSION_NAME, config.API_ID, config.API_HASH)
 replied_users: set[int] = set()
+
+# Session yaratish: Railway da SESSION_STRING ishlatiladi, local da fayl
+if config.SESSION_STRING:
+    # Base64 dan decode qilib StringSession ga beramiz
+    try:
+        raw_bytes = base64.b64decode(config.SESSION_STRING)
+        # SQLite session faylini vaqtinchalik yozamiz
+        session_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            config.SESSION_NAME + ".session"
+        )
+        with open(session_path, "wb") as f:
+            f.write(raw_bytes)
+        log.info("Session fayl SESSION_STRING dan yaratildi.")
+    except Exception as e:
+        log.error(f"SESSION_STRING decode xato: {e}")
+
+client = TelegramClient(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), config.SESSION_NAME),
+    config.API_ID,
+    config.API_HASH
+)
 
 
 @client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
